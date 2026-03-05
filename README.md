@@ -60,7 +60,7 @@ The system uses a relational PostgreSQL structure to ensure data consistency wit
 ## 🚀 Getting Started
 
 ### 1. Installation
-git clone [https://github.com/yourusername/parhofast.git](https://github.com/yourusername/parhofast.git)
+git clone [https://github.com/yourusername/parhofast.git](https://github.com/atrivers3/parhofast.git)
 cd parhofast
 npm install
 
