@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 
+// Create Enrollment
 exports.enrollCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -34,6 +35,24 @@ exports.enrollCourse = async (req, res) => {
       return res.status(400).json({ message: "Already enrolled" });
     }
 
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// Get My Enrolled courses
+exports.getMyCourses = async (req, res) => {
+  try {
+    const courses = await pool.query(`
+      SELECT courses.*
+      FROM enrollments
+      JOIN courses ON enrollments.course_id = courses.id
+      WHERE enrollments.user_id = $1
+    `, [req.user.id]);
+
+    res.json(courses.rows);
+  } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
