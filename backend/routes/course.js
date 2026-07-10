@@ -17,6 +17,6 @@ router.get("/my-courses", verifyToken, courseController.getMyCreatedCourses);
 
 router.get("/:id/details", courseController.getCourseDetails);
 
-router.delete("/:id", verifyToken, deleteCourse);
+router.delete("/:id", verifyToken, courseController.deleteCourse);
 
 module.exports = router;
