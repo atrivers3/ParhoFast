@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
   res.send("API is running... ?");
 });
 
-app.use("/api/auth/", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/course-content", courseContentRoutes);
 app.use("/api/enrollments", enrollmentRoutes);

@@ -68,7 +68,7 @@ exports.unenrollCourse = async (req, res) => {
       [req.user.id, courseId]
     );
 
-    if (deleted.rows.length === 0) {
+    if (deleted.rowCount === 0) {
       return res.status(404).json({ message: "Enrollment not found" });
     }
     res.json({ message: "Unenrolled successfully" });
