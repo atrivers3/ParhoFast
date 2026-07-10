@@ -8,6 +8,7 @@ export const Dashboard = () => {
   const { user, viewMode } = useAuth();
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [activeTab, setActiveTab] = useState('explore');
 
   useEffect(() => {
     if (!user) return;
@@ -46,12 +47,36 @@ export const Dashboard = () => {
     return <div className="p-8 text-center"><h1 className="text-headline-lg">Please login to view dashboard</h1></div>;
   }
 
+  const learningCourses = enrolledCourses;
+  const exploreCourses = courses.filter(c => !enrolledCourses.some(ec => ec.id === c.id));
+  const displayCourses = viewMode === 'instructor' 
+    ? courses 
+    : (activeTab === 'learning' ? learningCourses : exploreCourses);
+
   return (
     <div className="max-w-container-max mx-auto px-gutter py-margin-desktop">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-display-lg font-bold">
-          {viewMode === 'instructor' ? 'Instructor Dashboard' : 'Student Dashboard'}
-        </h1>
+        <div className="flex items-center gap-6">
+          <h1 className="text-display-lg font-bold">
+            {viewMode === 'instructor' ? 'Instructor Dashboard' : 'Student Dashboard'}
+          </h1>
+          {viewMode === 'student' && (
+            <div className="flex bg-slate-900/50 backdrop-blur-xl p-1 rounded-lg border border-slate-800">
+              <button
+                onClick={() => setActiveTab('explore')}
+                className={`px-4 py-1.5 rounded-md text-label-md font-medium transition-colors ${activeTab === 'explore' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+              >
+                Explore Courses
+              </button>
+              <button
+                onClick={() => setActiveTab('learning')}
+                className={`px-4 py-1.5 rounded-md text-label-md font-medium transition-colors ${activeTab === 'learning' ? 'bg-primary text-on-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+              >
+                My Learning
+              </button>
+            </div>
+          )}
+        </div>
         {viewMode === 'instructor' && (
           <Link to="/courses/create" className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-lg hover:shadow-[0_0_15px_-3px_rgba(99,102,241,0.3)] transition-all font-medium">
             <Plus size={20} /> Create Course
@@ -60,7 +85,7 @@ export const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {courses.map(course => (
+        {displayCourses.map(course => (
           <div key={course.id} className="group bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 flex flex-col hover:-translate-y-1 hover:shadow-[0_0_20px_-5px_rgba(99,102,241,0.2)] transition-all duration-300">
             <h3 className="text-headline-md mb-1 text-on-surface">{course.title}</h3>
             
@@ -95,7 +120,7 @@ export const Dashboard = () => {
           </div>
         ))}
       </div>
-      {courses.length === 0 && (
+      {displayCourses.length === 0 && (
         <div className="text-center py-12 text-on-surface-variant">
           No courses found.
         </div>

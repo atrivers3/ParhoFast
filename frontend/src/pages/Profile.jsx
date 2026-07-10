@@ -7,12 +7,23 @@ export const Profile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState({ created: 0, enrolled: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (!user) return;
     
     // Fetch profile
-    api.get('/auth/me').then(res => setProfile(res.data)).catch(console.error);
+    api.get('/auth/me')
+      .then(res => {
+        setProfile(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setError('Failed to load profile. Session may be expired.');
+        setLoading(false);
+      });
 
     // Fetch stats
     if (user.role === 'teacher') {
@@ -21,7 +32,9 @@ export const Profile = () => {
     api.get('/enrollments/my-courses').then(res => setStats(s => ({ ...s, enrolled: res.data.length })));
   }, [user]);
 
-  if (!profile) return <div className="p-8">Loading profile...</div>;
+  if (loading) return <div className="p-8 text-on-surface-variant">Loading profile...</div>;
+  if (error) return <div className="p-8 text-error">{error}</div>;
+  if (!profile) return null;
 
   const createdDate = new Date(profile.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
