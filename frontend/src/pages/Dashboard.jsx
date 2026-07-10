@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Play, Plus } from 'lucide-react';
+import { Play, Plus, Trash2 } from 'lucide-react';
 
 export const Dashboard = () => {
   const { user, viewMode } = useAuth();
@@ -23,11 +23,20 @@ export const Dashboard = () => {
   const handleEnroll = async (courseId) => {
     try {
       await api.post('/enrollments/enroll', { courseId });
-      // Refresh enrolled
       const res = await api.get('/enrollments/my-courses');
       setEnrolledCourses(res.data);
     } catch (err) {
       alert(err.response?.data?.message || 'Error enrolling');
+    }
+  };
+
+  const handleUnenroll = async (courseId) => {
+    try {
+      await api.delete(`/enrollments/unenroll/${courseId}`);
+      const res = await api.get('/enrollments/my-courses');
+      setEnrolledCourses(res.data);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error unenrolling');
     }
   };
 
@@ -52,11 +61,16 @@ export const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map(course => (
-          <div key={course.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col">
-            <h3 className="text-headline-md mb-2">{course.title}</h3>
-            <p className="text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-3">{course.description}</p>
+          <div key={course.id} className="group bg-slate-900/80 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 flex flex-col hover:-translate-y-1 hover:shadow-[0_0_20px_-5px_rgba(99,102,241,0.2)] transition-all duration-300">
+            <h3 className="text-headline-md mb-1 text-on-surface">{course.title}</h3>
             
-            <div className="flex items-center justify-between mt-auto">
+            {viewMode === 'student' && course.teacher_name && (
+              <p className="text-label-md text-primary mb-3">By Instructor: {course.teacher_name}</p>
+            )}
+
+            <p className="text-body-sm text-on-surface-variant flex-1 mb-6 line-clamp-3 leading-relaxed">{course.description}</p>
+            
+            <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-800/50">
               <Link to={`/courses/${course.id}`} className="text-primary font-medium hover:underline flex items-center gap-2">
                 <Play size={16} /> View Details
               </Link>
@@ -70,9 +84,12 @@ export const Dashboard = () => {
                 </button>
               )}
               {viewMode === 'student' && isEnrolled(course.id) && (
-                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-label-md uppercase font-medium">
-                  Enrolled
-                </span>
+                <button 
+                  onClick={() => handleUnenroll(course.id)}
+                  className="flex items-center gap-1 bg-surface-variant text-on-surface-variant px-4 py-1.5 rounded-full text-label-md uppercase font-medium hover:bg-error/10 hover:text-error hover:border-error/20 border border-transparent transition-all"
+                >
+                  <Trash2 size={14} /> Unenroll
+                </button>
               )}
             </div>
           </div>

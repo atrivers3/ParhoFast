@@ -38,16 +38,13 @@ export const CourseDetails = () => {
   };
 
   const getEmbedUrl = (url) => {
-    try {
-      // Basic youtube/vimeo embed parsing can go here
-      // For now, if they provide a youtube watch url, convert to embed
-      if (url.includes('youtube.com/watch?v=')) {
-        return url.replace('watch?v=', 'embed/');
-      }
-      return url;
-    } catch {
-      return url;
-    }
+    if (!url) return "";
+    // Handles standard watch links, shortened share links, and raw embed links
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) 
+      ? `https://www.youtube.com/embed/${match[2]}` 
+      : url;
   };
 
   if (!course) return <div className="p-8">Loading...</div>;

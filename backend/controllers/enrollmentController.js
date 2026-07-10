@@ -45,13 +45,33 @@ exports.enrollCourse = async (req, res) => {
 exports.getMyCourses = async (req, res) => {
   try {
     const courses = await pool.query(`
-      SELECT courses.*
+      SELECT courses.*, users.name AS teacher_name
       FROM enrollments
       JOIN courses ON enrollments.course_id = courses.id
+      JOIN users ON courses.teacher_id = users.id
       WHERE enrollments.user_id = $1
     `, [req.user.id]);
 
     res.json(courses.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Unenroll Course
+exports.unenrollCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const deleted = await pool.query(
+      "DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2 RETURNING *",
+      [req.user.id, courseId]
+    );
+
+    if (deleted.rows.length === 0) {
+      return res.status(404).json({ message: "Enrollment not found" });
+    }
+    res.json({ message: "Unenrolled successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

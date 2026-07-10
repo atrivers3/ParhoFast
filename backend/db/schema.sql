@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS courses (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    content TEXT,
     teacher_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (teacher_id)
@@ -37,7 +38,8 @@ CREATE TABLE IF NOT EXISTS course_notes (
     id SERIAL PRIMARY KEY,
     course_id INTEGER NOT NULL,
     title VARCHAR(255) NOT NULL,
-    note_url TEXT NOT NULL,
+    content TEXT NOT NULL,
+    position INTEGER DEFAULT 0,
     FOREIGN KEY (course_id)
         REFERENCES courses(id)
         ON DELETE CASCADE
